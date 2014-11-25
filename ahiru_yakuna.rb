@@ -5,7 +5,7 @@ Plugin.create(:ahiru_yakuna) do
   on_appear do |ms|
     ms.each do |m|
       if m.message.to_s =~ /あひる焼き/
-        replySentence = replyArray.sample
+        replySentence = replyArray.sample(1)
         Service.primary.post(:message => "#{"@" + m.user.idname + ' ' + replySentence}", :replyto => m)
         m.message.favorite(true)
       end
