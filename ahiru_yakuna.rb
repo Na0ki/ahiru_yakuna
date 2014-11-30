@@ -21,7 +21,9 @@ Plugin.create(:ahiru_yakuna) do
 
     ms.each do |m|
       if m.message.to_s =~ /あひる焼き/ and m[:created] > DEFINED_TIME and !m.retweet? and dose_reply_self_message
-        unless m.me? and does_reply_self_message
+        if m.me? and does_reply_self_message
+          reply_and_favorite(m)
+        else
           reply_and_favorite(m)
         end
       end
