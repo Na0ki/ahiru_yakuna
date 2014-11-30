@@ -10,14 +10,22 @@ Plugin.create(:ahiru_yakuna) do
     notice "\"config.yml\" not found."
   end
 
+  def reply_and_favorite(tweet)
+        replySentence = replyArray.sample
+        Service.primary.post(:message => "#{"@" + tweet.user.idname + ' ' + replySentence}", :replyto => tweet)
+        tweet.message.favorite(true)
+  end
+
   on_appear do |ms|
-    dose_reply_self_message = UserConfig[:does_reply_self_message] || false
+    does_reply_self_message = UserConfig[:does_reply_self_message] || false
 
     ms.each do |m|
-      if m.message.to_s =~ /あひる焼き/ and m[:created] > DEFINED_TIME and !m.retweet? and dose_reply_self_message
-        replySentence = replyArray.sample
-        Service.primary.post(:message => "#{"@" + m.user.idname + ' ' + replySentence}", :replyto => m)
-        m.message.favorite(true)
+      if m.message.to_s =~ /あひる焼き/ and m[:created] > DEFINED_TIME and !m.retweet?
+        if m.me? and does_reply_self_message
+          reply_and_favorite(m)
+        else
+          reply_and_favorite(m)
+        end
       end
     end
   end
