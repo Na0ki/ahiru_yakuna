@@ -20,7 +20,7 @@ Plugin.create(:ahiru_yakuna) do
     does_reply_self_message = UserConfig[:does_reply_self_message] || false
 
     ms.each do |m|
-      if m.message.to_s =~ /あひる焼き/ and m[:created] > DEFINED_TIME and !m.retweet? and dose_reply_self_message
+      if m.message.to_s =~ /あひる焼き/ and m[:created] > DEFINED_TIME and !m.retweet?
         if m.me? and does_reply_self_message
           reply_and_favorite(m)
         else
