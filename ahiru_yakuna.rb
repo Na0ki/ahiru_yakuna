@@ -17,7 +17,7 @@ Plugin.create(:ahiru_yakuna) do
   end
 
   on_appear do |ms|
-    dose_reply_self_message = UserConfig[:does_reply_self_message] || false
+    does_reply_self_message = UserConfig[:does_reply_self_message] || false
 
     ms.each do |m|
       if m.message.to_s =~ /あひる焼き/ and m[:created] > DEFINED_TIME and !m.retweet? and dose_reply_self_message
