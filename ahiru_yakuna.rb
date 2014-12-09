@@ -1,38 +1,22 @@
-# -*- coding: utf-8 -*-
+ # -*- coding: utf-8 -*-
+ 
+ Plugin.create(:ahiru_yakuna) do
+ 
+   DEFINED_TIME = Time.new.freeze
+ 
+   begin
+     replyArray = YAML.load_file(File.join(File.dirname(__FILE__),"config.yml"))
+   rescue LoadError
+     notice "\"config.yml\" not found."
+   end
 
-Plugin.create(:ahiru_yakuna) do
-
-  DEFINED_TIME = Time.new.freeze
-
-  begin
-    replyArray = YAML.load_file(File.join(File.dirname(__FILE__),"config.yml"))
-  rescue LoadError
-    notice "\"config.yml\" not found."
-  end
-
-  def reply_and_favorite(tweet)
-        replySentence = replyArray.sample
-        Service.primary.post(:message => "#{"@" + tweet.user.idname + ' ' + replySentence}", :replyto => tweet)
-        tweet.message.favorite(true)
-  end
-
-  on_appear do |ms|
-    does_reply_self_message = UserConfig[:does_reply_self_message] || false
-
-    ms.each do |m|
-      if m.message.to_s =~ /あひる焼き/ and m[:created] > DEFINED_TIME and !m.retweet?
-        if m.me? and does_reply_self_message
-          reply_and_favorite(m)
-        else
-          reply_and_favorite(m)
-        end
-      end
-    end
-  end
-
-  settings 'ahiru_yakuna' do
-    settings '「あひる焼き」への反応設定' do
-      boolean('自分の発言に反応する（デバッグ用）', :does_reply_self_message)
-    end
-  end
-end
+   on_appear do |ms|
+     ms.each do |m|
+       if m.message.to_s =~ /あひる焼き/ and m[:created] > DEFINED_TIME and !m.retweet?
+         replySentence = replyArray.sample
+         Service.primary.post(:message => "#{"@" + m.user.idname + ' ' + replySentence}", :replyto => m)
+         m.message.favorite(true)
+       end
+     end
+   end
+ end
