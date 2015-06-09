@@ -12,7 +12,7 @@
 
    on_appear do |ms|
      ms.each do |m|
-       if m.message.to_s =~ /あひる焼き/ and m[:created] > DEFINED_TIME and !m.retweet?
+       if m.message.to_s =~ /あひる焼き|ahiruyaki/ and m[:created] > DEFINED_TIME and !m.retweet?
          replySentence = replyArray.sample
          Service.primary.post(:message => "#{"@" + m.user.idname + ' ' + replySentence}", :replyto => m)
          m.message.favorite(true)
