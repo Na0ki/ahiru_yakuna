@@ -15,7 +15,7 @@ Plugin.create(:ahiru_yakuna) do
   on_appear do |ms|
    ms.each do |m|
    if m.message.to_s =~ /あひる焼き|ahiruyaki/ and m[:created] > DEFINED_TIME and !m.retweet?
-    if (now.hour < 19 && now.hour > 17) || (now.hour < 0 && now.hour < 3) then
+    if (now.hour < 19 && now.hour > 17) || now.hour < 3 then
      replySentence = meshiteroArray.sample
     else
     　replySentence = replyArray.sample
