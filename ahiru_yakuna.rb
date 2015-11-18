@@ -13,7 +13,7 @@ Plugin.create(:ahiru_yakuna) do
 
   on_appear do |ms|
     ms.each do |m|
-      if m.message.to_s =~ /あひる焼き|ahiruyaki|扒家鸭/ and m[:created] > DEFINED_TIME and !m.retweet?
+      if m.message.to_s =~ /あひる焼き|Ahiruyaki|扒家鸭/ and m[:created] > DEFINED_TIME and !m.retweet?
       	now = Time.now.hour
       	if (now > 17 && now < 19) || (now > 0 && now < 3) then
         	replySentence = meshiteroArray.sample
