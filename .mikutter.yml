@@ -2,8 +2,7 @@
 slug: :ahiru_yakuna
 depends:
   mikutter: 3.0.6
-  plugin:
-  - activity
+  plugin: [streaming]
 version: 0.0.1
 author: "あひる"
 name: "あひる焼くなプラグイン"
