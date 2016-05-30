@@ -1,45 +1,43 @@
- # -*- coding: utf-8 -*-
- 
+# -*- coding: utf-8 -*-
+
 Plugin.create(:ahiru_yakuna) do
- 
+
   DEFINED_TIME = Time.new.freeze
- 
+
+  # load reply dictionaries
   begin
-	replyArray = YAML.load_file(File.join(File.dirname(__FILE__),"config.yml"))
-	meshiteroArray = YAML.load_file(File.join(File.dirname(__FILE__),"meshitero.yml"))
-    steinArray = YAML.load_file(File.join(File.dirname(__FILE__),"stein.yml"))
-    chineseArray = YAML.load_file(File.join(File.dirname(__FILE__),"chinese.yml"))
+    config = YAML.load_file(File.join(__dir__, 'config.yml'))
+    meshitero = YAML.load_file(File.join(__dir__, 'meshitero.yml'))
+    stein = YAML.load_file(File.join(__dir__, 'stein.yml'))
+    chinese = YAML.load_file(File.join(__dir__, 'chinese.yml'))
   rescue LoadError
-   	notice "\"config.yml\" not found."
+    notice 'Could not load yml file'
   end
 
   on_appear do |ms|
     ms.each do |m|
       if m.message.to_s =~ /あひる焼き|Ahiruyaki|扒家鸭/ and m[:created] > DEFINED_TIME and !m.retweet?
-      	now = Time.now.hour
-      	if (now >= 17 && now <= 19) || (now >= 0 && now <= 3) then
-        	replySentence = meshiteroArray.sample
+        now = Time.now.hour
+        # load meshitero dic if it's meshitero time
+        if (now >= 17 && now <= 19) || (now >= 0 && now <= 3)
+          reply = meshitero.sample
         else
           if m.message.to_s =~ /扒家鸭/
-            replySentence = chineseArray.sample
+            reply = chinese.sample
           else
-        	replySentence = replyArray.sample
+            reply = config.sample
           end
         end
-        # if m.user.idname == "naota344"
-        #   Service.primary.send_direct_message(text: replySentence,
-                                            #   user: m.user.idname)
-        # else
-          Service.primary.post(:message => "#{"@" + m.user.idname + ' ' + replySentence}", :replyto => m)
-          m.message.favorite(true)
-        # end
+        Service.primary.post(:message => "#{'@' + m.user.idname + ' ' + reply}", :replyto => m)
+        m.message.favorite(true)
       end
       if m.message.to_s =~ /ｳﾞｪﾝﾃﾞﾙｼｭﾀｲﾝ焼き/ and m[:created] > DEFINED_TIME and !m.retweet?
-        replySentence = steinArray.sample
-        if m.user.idname == "ahiru3net" || m.user.idname == "wendelstein__"
-          Service.primary.post(:message => "#{"@" + "wendelstein__" + ' ' + replySentence}", :replyto => m)
+        reply = stein.sample
+        if m.user.idname == 'ahiru3net' || m.user.idname == 'wendelstein__'
+          Service.primary.post(:message => "#{'@' + m.user.idname + ' ' + reply}", :replyto => m)
         end
       end
     end
   end
+
 end
