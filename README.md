@@ -21,4 +21,4 @@ A: 焼くな焼くなも焼けのうち
 Special thanks to contributors
 
 # Contact
-<i class="fa fa-twitter" aria-hidden="true"></i>[@ahiru3net](https://twitter.com/ahiru3net)
+[@ahiru3net](https://twitter.com/ahiru3net)
