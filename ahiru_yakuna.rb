@@ -8,10 +8,10 @@ Plugin.create(:ahiru_yakuna) do
 
   # load reply dictionaries
   begin
-    JAPANESE = YAML.load_file(File.join(__dir__, 'replydic', 'default.yml'))
-    MESHITERO = YAML.load_file(File.join(__dir__, 'replydic', 'meshitero.yml'))
-    ENGLISH = YAML.load_file(File.join(__dir__, 'replydic', 'english.yml'))
-    CHINESE = YAML.load_file(File.join(__dir__, 'replydic', 'chinese.yml'))
+    JAPANESE = YAML.load_file(File.join(__dir__, 'dictionary', 'japanese.yml'))
+    MESHITERO = YAML.load_file(File.join(__dir__, 'dictionary', 'meshitero.yml'))
+    ENGLISH = YAML.load_file(File.join(__dir__, 'dictionary', 'english.yml'))
+    CHINESE = YAML.load_file(File.join(__dir__, 'dictionary', 'chinese.yml'))
   rescue LoadError
     notice 'Could not load yml file'
   end
