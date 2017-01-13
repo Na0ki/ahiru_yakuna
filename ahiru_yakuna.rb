@@ -5,6 +5,7 @@ Plugin.create(:ahiru_yakuna) do
   criminals = Set.new
   あひる焼き = %w(あひる焼き Ahiruyaki 扒家鸭)
 
+  # 辞書のロード
   def prepare
     begin
       @dictionary = Hash.new
@@ -17,16 +18,24 @@ Plugin.create(:ahiru_yakuna) do
     end
   end
 
+
+  # 対応するファイルの辞書から一つサンプルを取り出す
+  # @param [String] key 辞書の名前
+  # @return [String] リプライ文字列
   def sample(key)
     @dictionary.values_at(key)[0].sample
   end
 
 
+  # リプライを選ぶ
+  # @param [String] msg リプライ先のツイート
+  # @param [Time] time リプライを受けた時刻（hourのみ）
   def select_reply(msg, time)
     # お正月モード
-    return sample('shogatsu') if Time.now.yday <= 3
+    return sample('shogatsu') if time.yday <= 3
     # 飯テロモード
-    return sample('meshitero') if (time >= 17 and time <= 19) or (time >= 0 and time <= 3)
+    hour = time.hour
+    return sample('meshitero') if ((hour >= 17 and hour <= 19) or (hour >= 0 and hour <= 3))
 
     # 言語ごとに使用辞書を変える
     return sample('english') if msg =~ /Ahiruyaki/
@@ -52,7 +61,7 @@ Plugin.create(:ahiru_yakuna) do
       if m.to_s =~ Regexp.union(あひる焼き) and !criminals.include?(m.id)
         criminals << m.id
         # select reply dic & send reply & fav
-        reply = select_reply(m.to_s, Time.now.hour)
+        reply = select_reply(m.to_s, Time.now)
         Service.primary.post(:message => '@%{id} %{reply}' % {id: m.user.idname, reply: reply}, :replyto => m)
         m.favorite(true)
       end
