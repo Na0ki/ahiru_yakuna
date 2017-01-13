@@ -8,11 +8,12 @@ Plugin.create(:ahiru_yakuna) do
   def prepare
     begin
       @dictionary = Hash.new
-      dictionaries = Dir.glob("#{File.join(__dir__, 'dictionary')}/*")
+      dictionaries = Dir.glob("#{File.join(__dir__, 'dictionary')}/*.yml")
       dictionaries.each { |d| @dictionary[File.basename(d, '.*')] = YAML.load_file(d) }
       @defined_time = Time.new.freeze
     rescue LoadError => e
-      error "An Error Occurred: #{e}"
+      error e
+      Service.primary.post(:message => '辞書の更新時にエラーが発生しました: %{time}' % {time: Time.now.to_s}, :replyto => Service.primary.user)
     end
   end
 
@@ -45,22 +46,22 @@ Plugin.create(:ahiru_yakuna) do
 
   on_appear do |ms|
     ms.each do |m|
-      if m.to_s =~ Regexp.union(あひる焼き) and m[:created] > @defined_time and !m.retweet? and !criminals.include?(m.id)
+      # メッセージ生成時刻が起動前またはリツイートならば次のループへ
+      next if m[:created] < @defined_time or m.retweet?
+
+      if m.to_s =~ Regexp.union(あひる焼き) and !criminals.include?(m.id)
         criminals << m.id
         # select reply dic & send reply & fav
         reply = select_reply(m.to_s, Time.now.hour)
-        Service.primary.post(:message => "@#{m.user.idname} #{reply}", :replyto => m)
+        Service.primary.post(:message => '@%{id} %{reply}' % {id: m.user.idname, reply: reply}, :replyto => m)
         m.favorite(true)
-      elsif m.to_s =~ /辞書更新/ and m[:created] > @defined_time and m.user.idname == 'ahiru3net'
-        Thread.new {
-          prepare
-        }.next { |_|
-          Service.primary.post(:message => "@ahiru3net 辞書の更新が完了しました: #{Time.now.to_s}")
-        }.trap { |err|
-          error err
-          Service.primary.post(:message => "@ahiru3net 辞書の更新時にエラーが発生しました: #{Time.now.to_s}")
-        }
       end
+
+      if m.to_s =~ /辞書更新/ and m.user.idname == Service.primary.user
+        prepare
+        Service.primary.post(:message => '辞書の更新が完了しました: %{time}' % {time: Time.now.to_s}, :replyto => m)
+      end
+
     end
   end
 
