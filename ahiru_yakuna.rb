@@ -14,7 +14,7 @@ Plugin.create(:ahiru_yakuna) do
       @defined_time = Time.new.freeze
     rescue LoadError => e
       error e
-      Service.primary.post(:message => '辞書の更新時にエラーが発生しました: %{time}' % {time: Time.now.to_s}, :replyto => Service.primary.user)
+      Service.primary.post(:message => '[あひる焼くな] 辞書の更新時にエラーが発生しました: %{time}' % {time: Time.now.to_s}, :replyto => Service.primary.user)
     end
   end
 
@@ -68,7 +68,7 @@ Plugin.create(:ahiru_yakuna) do
 
       if m.to_s =~ /辞書更新/ and m.user.idname == Service.primary.user
         prepare
-        Service.primary.post(:message => '辞書の更新が完了しました: %{time}' % {time: Time.now.to_s}, :replyto => m)
+        Service.primary.post(:message => '[あひる焼くな] 辞書の更新が完了しました: %{time}' % {time: Time.now.to_s}, :replyto => m)
       end
 
     end
