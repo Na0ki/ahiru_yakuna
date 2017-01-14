@@ -66,7 +66,7 @@ Plugin.create(:ahiru_yakuna) do
         m.favorite(true)
       end
 
-      if m.to_s =~ /辞書更新/ and m.user.idname == Service.primary.user
+      if m.to_s =~ /辞書更新/ and m.user[:id] == Service.primary.user_obj.id
         prepare
         Service.primary.post(:message => '[あひる焼くな] 辞書の更新が完了しました: %{time}' % {time: Time.now.to_s}, :replyto => m)
       end
