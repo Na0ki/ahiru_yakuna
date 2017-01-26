@@ -49,19 +49,10 @@ Plugin.create(:ahiru_yakuna) do
   # @return [Delayer::Deferred::Deferrable]
   def admin_command(message)
     Thread.new(message) { |m|
+      # TODO: GitHubから最新のものを持ってくる
       if m.to_s =~ /辞書更新/
         prepare
         m.post(:message => '[あひる焼くな] 辞書の更新が完了しました: %{time}' % {time: Time.now.to_s}, :replyto => m)
-      elsif m.to_s =~ /辞書追加/
-        matched = /@#{m.user.idname}\s辞書追加\s(?<type>.+)\s(?<words>.+)/.match(m.to_s)
-        if matched.nil? or matched[:type].nil? or matched[:words].nil? or !@dictionary.key?(matched[:type])
-          m.post(:message => '追加の形式が間違っているか、該当する辞書が存在しません', :replyto => m)
-          Delayer::Deferred.fail("Did not match case: #{matched}")
-        end
-
-        File.open(File.join(__dir__, 'dictionary', "#{matched[:type]}.yml"), 'a') do |f|
-          f.puts("- \"#{matched[:words]}\"")
-        end
       end
     }
   end
