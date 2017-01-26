@@ -49,8 +49,9 @@ Plugin.create(:ahiru_yakuna) do
   # @return [Delayer::Deferred::Deferrable]
   def admin_command(message)
     Thread.new(message) { |m|
-      # TODO: GitHubから最新のものを持ってくる
       if m.to_s =~ /辞書更新/
+        %x( cd #{File.join(__dir__, 'dictionary')} && git pull origin master )
+        notice "最新の辞書の取得に#{$?.success? ? '成功' : '失敗' }しました"
         prepare
         m.post(:message => '[あひる焼くな] 辞書の更新が完了しました: %{time}' % {time: Time.now.to_s}, :replyto => m)
       end
