@@ -51,9 +51,11 @@ Plugin.create(:ahiru_yakuna) do
     Thread.new(message) { |m|
       if m.to_s =~ /辞書更新/
         %x( cd #{File.join(__dir__, 'dictionary')} && git pull origin master )
-        notice "最新の辞書の取得に#{$?.success? ? '成功' : '失敗' }しました"
+        result = $?.success? ? '成功' : '失敗'
+        notice "最新の辞書の取得に#{result}しました"
         prepare
-        m.post(:message => '[あひる焼くな] 辞書の更新が完了しました: %{time}' % {time: Time.now.to_s}, :replyto => m)
+        m.post(:message => "[あひる焼くな] 辞書の更新が完了しました\nリモートの辞書の取得に%{result}しました\n %{time}" % {time: Time.now.to_s, result: result},
+               :replyto => m)
       end
     }
   end
