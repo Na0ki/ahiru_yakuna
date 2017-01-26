@@ -44,6 +44,29 @@ Plugin.create(:ahiru_yakuna) do
   end
 
 
+  # 管理者のみ実行可能な機能
+  # @param [Message] message メッセージインスタンス
+  # @return [Delayer::Deferred::Deferrable]
+  def admin_command(message)
+    Thread.new(message) { |m|
+      if m.to_s =~ /辞書更新/
+        prepare
+        m.post(:message => '[あひる焼くな] 辞書の更新が完了しました: %{time}' % {time: Time.now.to_s}, :replyto => m)
+      elsif m.to_s =~ /辞書追加/
+        matched = /@#{m.user.idname}\s辞書追加\s(?<type>.+)\s(?<words>.+)/.match(m.to_s)
+        if matched.nil? or matched[:type].nil? or matched[:words].nil? or !@dictionary.key?(matched[:type])
+          m.post(:message => '追加の形式が間違っているか、該当する辞書が存在しません', :replyto => m)
+          Delayer::Deferred.fail("Did not match case: #{matched}")
+        end
+
+        File.open(File.join(__dir__, 'dictionary', "#{matched[:type]}.yml"), 'a') do |f|
+          f.puts("- \"#{matched[:words]}\"")
+        end
+      end
+    }
+  end
+
+
   # load reply dictionaries
   prepare
 
@@ -62,14 +85,14 @@ Plugin.create(:ahiru_yakuna) do
         criminals << m.id
         # select reply dic & send reply & fav
         reply = select_reply(m.to_s, Time.now)
-        Service.primary.post(:message => '@%{id} %{reply}' % {id: m.user.idname, reply: reply}, :replyto => m)
+        m.post(:message => '@%{id} %{reply}' % {id: m.user.idname, reply: reply}, :replyto => m)
         m.favorite(true)
       end
 
-      if m.to_s =~ /辞書更新/ and m.user[:id] == Service.primary.user_obj.id
-        prepare
-        Service.primary.post(:message => '[あひる焼くな] 辞書の更新が完了しました: %{time}' % {time: Time.now.to_s}, :replyto => m)
-      end
+      next if m.user[:id] != Service.primary.user_obj.id
+      # ここから先は自分のみに反応する
+
+      admin_command(m).trap { |e| error e }
 
     end
   end
