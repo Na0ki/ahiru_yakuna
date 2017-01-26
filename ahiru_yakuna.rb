@@ -23,7 +23,7 @@ Plugin.create(:ahiru_yakuna) do
   # @param [String] key 辞書の名前
   # @return [String] リプライ文字列
   def sample(key)
-    @dictionary.values_at(key)[0].sample
+    @dictionary.values_at(key).first.sample
   end
 
 
