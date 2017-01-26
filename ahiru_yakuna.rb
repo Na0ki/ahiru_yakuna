@@ -80,9 +80,9 @@ Plugin.create(:ahiru_yakuna) do
         m.favorite(true)
       end
 
-      next if m.user[:id] != Service.primary.user_obj.id
       # ここから先は自分のみに反応する
-
+      next if m.user[:id] != Service.primary.user_obj.id
+      # 管理者コマンドの実行
       admin_command(m).trap { |e| error e }
 
     end
