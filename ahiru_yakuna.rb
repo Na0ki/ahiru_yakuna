@@ -27,20 +27,36 @@ Plugin.create(:ahiru_yakuna) do
   end
 
 
+  # 言語によって辞書を選ぶ
+  # @param [String] msg リプライ先のツイート
+  # @return [String] リプライメッセージ
+  def language(msg)
+    case msg
+      when /Ahiruyaki/
+        sample('english')
+      when /扒家鸭/
+        sample('chinese')
+      else
+        sample('japanese')
+    end
+  end
+
+
   # リプライを選ぶ
   # @param [String] msg リプライ先のツイート
-  # @param [Time] time リプライを受けた時刻（hourのみ）
+  # @param [Time] time リプライを受けた時刻
   def select_reply(msg, time)
-    # お正月モード
-    return sample('shogatsu') if time.yday <= 3
-    # 飯テロモード
     hour = time.hour
-    return sample('meshitero') if ((hour >= 17 and hour <= 19) or (hour >= 0 and hour <= 3))
-
-    # 言語ごとに使用辞書を変える
-    return sample('english') if msg =~ /Ahiruyaki/
-    return sample('chinese') if msg =~ /扒家鸭/
-    sample('japanese')
+    case
+      when time.yday <= 3
+        # お正月モード
+        sample('shogatsu')
+      when (17..19).include?(hour), (0..3).include?(hour)
+        # 飯テロモード
+        sample('meshitero')
+      else
+        language(msg)
+    end
   end
 
 
