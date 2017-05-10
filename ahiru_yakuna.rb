@@ -3,7 +3,7 @@
 Plugin.create(:ahiru_yakuna) do
 
   criminals = Set.new
-  あひる焼き = %w(あひる焼き Ahiruyaki 扒家鸭)
+  あひる焼き = %w(あひる焼き Ahiruyaki 扒家鸭 3v.7g)
 
   # 辞書のロード
   def prepare
