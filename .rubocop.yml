@@ -4,6 +4,9 @@ AllCops:
 Style/AsciiComments:
   Enabled: false
 
+Style/AsciiIdentifiers:
+  Enabled: false
+
 Metrics/BlockLength:
   Enabled: false
 
