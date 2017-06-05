@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # -*- frozen_string_literal: true -*-
 
+require 'English'
+
 Plugin.create(:ahiru_yakuna) do
   criminals = Set.new
   あひる焼き = %w[あひる焼き アヒルヤキ アヒル焼き Ahiruyaki 扒家鸭 3v.7g]
@@ -63,7 +65,7 @@ Plugin.create(:ahiru_yakuna) do
     Thread.new(message) { |m|
       if m.to_s =~ /辞書更新/
         `cd #{File.join(__dir__, 'dictionary')} && git pull origin master`
-        result = Process::Status.new.success? ? '成功' : '失敗'
+        result = $CHILD_STATUS.success? ? '成功' : '失敗'
         time = Time.now.to_s
         notice "最新の辞書の取得に#{result}しました: #{time}"
         prepare
