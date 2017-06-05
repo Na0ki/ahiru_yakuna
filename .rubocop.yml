@@ -1,6 +1,15 @@
 AllCops:
   TargetRubyVersion: 2.3
 
+Style/VariableNumber:
+  Enabled: false
+
+Style/VariableName:
+  Enabled: false
+
+Style/EmptyCaseCondition:
+  Enabled: false
+
 Style/AsciiComments:
   Enabled: false
 

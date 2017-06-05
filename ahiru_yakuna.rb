@@ -6,16 +6,16 @@ Plugin.create(:ahiru_yakuna) do
   あひる焼き = %w[あひる焼き アヒルヤキ アヒル焼き Ahiruyaki 扒家鸭 3v.7g]
 
   # 辞書のロード
+  # メソッド単位で rescue しているため begin ブロックは不要
   def prepare
-    begin
-      @dictionary = {}
-      dictionaries = Dir.glob("#{File.join(__dir__, 'dictionary')}/*.yml")
-      dictionaries.each { |d| @dictionary[File.basename(d, '.*')] = YAML.load_file(d) }
-      @defined_time = Time.new.freeze
-    rescue LoadError => e
-      error e
-      Service.primary.post(message: '[あひる焼くな] 辞書の更新時にエラーが発生しました: %{time}' % { time: Time.now.to_s }, replyto: Service.primary.user)
-    end
+    @dictionary = {}
+    dictionaries = Dir.glob("#{File.join(__dir__, 'dictionary')}/*.yml")
+    dictionaries.each { |d| @dictionary[File.basename(d, '.*')] = YAML.load_file(d) }
+    @defined_time = Time.new.freeze
+  rescue LoadError => e
+    error e
+    Service.primary.post(message: "[あひる焼くな] 辞書の更新時にエラーが発生しました: #{Time.now}",
+                         replyto: Service.primary.user)
   end
 
   # 対応するファイルの辞書から一つサンプルを取り出す
@@ -62,12 +62,17 @@ Plugin.create(:ahiru_yakuna) do
   def admin_command(message)
     Thread.new(message) { |m|
       if m.to_s =~ /辞書更新/
-        %x( cd #{File.join(__dir__, 'dictionary')} && git pull origin master )
-        result = $CHILD_STATUS.success? ? '成功' : '失敗'
-        notice "最新の辞書の取得に#{result}しました"
+        `cd #{File.join(__dir__, 'dictionary')} && git pull origin master`
+        result = $CHILD_STATUS.zero? ? '成功' : '失敗'
+        time = Time.now.to_s
+        notice "最新の辞書の取得に#{result}しました: #{time}"
         prepare
-        m.post(message: "[あひる焼くな] 辞書の更新が完了しました\nリモートの辞書の取得に%{result}しました\n %{time}" % { time: Time.now.to_s, result: result },
-               replyto: m)
+        msg = <<~EOS
+          [あひる焼くな] 辞書の更新が完了しました
+          リモートの辞書の取得に#{result}しました
+          #{time}
+        EOS
+        m.post(message: msg, replyto: m)
       end
     }
   end
@@ -88,7 +93,7 @@ Plugin.create(:ahiru_yakuna) do
         criminals << m.id
         # select reply dic & send reply & fav
         reply = select_reply(m.to_s, Time.now)
-        m.post(message: '@%{id} %{reply}' % { id: m.user.idname, reply: reply }, replyto: m)
+        m.post(message: "@#{m.user.idname} #{reply}", replyto: m)
         m.favorite(true)
       end
 
