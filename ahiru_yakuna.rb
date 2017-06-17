@@ -5,7 +5,7 @@ require 'English'
 
 Plugin.create(:ahiru_yakuna) do
   criminals = Set.new
-  あひる焼き = %w[あひる焼き アヒルヤキ アヒル焼き Ahiruyaki 扒家鸭 3v.7g]
+  あひる焼き = %w[あひる焼き アヒルヤキ アヒル焼き あひるやき Ahiruyaki 扒家鸭 3v.7g]
 
   # 辞書のロード
   # メソッド単位で rescue しているため begin ブロックは不要
