@@ -2,6 +2,7 @@
 # -*- frozen_string_literal: true -*-
 
 require 'English'
+require 'nkf'
 
 Plugin.create(:ahiru_yakuna) do
   criminals = Set.new
@@ -91,10 +92,11 @@ Plugin.create(:ahiru_yakuna) do
       # メッセージ生成時刻が起動前またはリツイートならば次のループへ
       next if m[:created] < @defined_time || m.retweet?
 
-      if m.to_s =~ Regexp.union(あひる焼き) && !criminals.include?(m.id)
+      message = NKF.nkf('-Z1 -Ww', m.to_s)
+      if message =~ Regexp.union(あひる焼き) && !criminals.include?(m.id)
         criminals << m.id
         # select reply dic & send reply & fav
-        reply = select_reply(m.to_s, Time.now)
+        reply = select_reply(message, Time.now)
         m.post(message: "@#{m.user.idname} #{reply}", replyto: m)
         m.favorite(true)
       end
